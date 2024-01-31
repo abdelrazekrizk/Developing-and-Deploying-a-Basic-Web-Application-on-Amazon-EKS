@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t my-eks-web-app .
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <your-ecr-repository-uri>
+      - echo Pushing the Docker image to Amazon ECR...
+      - docker tag my-eks-web-app:latest <your-ecr-repository-uri>/my-eks-web-app:latest
+      - docker push <your-ecr-repository-uri>/my-eks-web-app:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
