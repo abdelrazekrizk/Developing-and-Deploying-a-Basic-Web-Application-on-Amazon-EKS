@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["eks:CreateCluster", "eks:DeleteCluster", "eks:DescribeCluster", "eks:ListClusters", "eks:UpdateCluster", "eks:CreateNodegroup", "eks:DeleteNodegroup", "eks:DescribeNodegroup", "eks:ListNodegroups", "eks:UpdateNodegroup"],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStacks",
+        "cloudformation:CreateStack",
+        "cloudformation:DeleteStack",
+        "cloudformation:UpdateStack"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["ec2:CreateSecurityGroup", "ec2:AuthorizeSecurityGroupIngress", "ec2:CreateSubnet", "ec2:DeleteSubnet"],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["vpc:CreateVpc", "vpc:DeleteVpc"],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["elb:CreateLoadBalancer", "elb:DeleteLoadBalancer"],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["route53:CreateHostedZone", "route53:DeleteHostedZone"],
+      "Resource": "*"
+    }
+  ]
+}
