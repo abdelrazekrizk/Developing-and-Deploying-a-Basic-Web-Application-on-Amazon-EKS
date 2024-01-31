@@ -1,0 +1,11 @@
+{
+    "description": "This is a guide on how to Automating the Developing and Deploying a Basic Web Application on Amazon EKS.",
+    "architectures": [
+        "x86"
+    ],
+    "operatingSystems": [
+        "Linux"
+    ],
+    "aboutText": "This repository is used as a tutorial only.",
+    "usageText": "This repository is not for public use."
+}
