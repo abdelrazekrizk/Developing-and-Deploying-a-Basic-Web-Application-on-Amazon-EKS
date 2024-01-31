@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-eks-web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-eks-web-app
+  template:
+    metadata:
+      labels:
+        app: my-eks-web-app
+    spec:
+      containers:
+      - name: my-eks-web-app
+        image: <your-ecr-repository-uri>/my-eks-web-app:latest
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-eks-web-app
+spec:
+  selector:
+    app: my-eks-web-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
