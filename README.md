@@ -395,7 +395,7 @@ Once the external IP is available, you can access your web application in a brow
 ## Step 12: Cleanup.
 - Cleaning up your resources is an important part of managing your cloud environment. <br>
 - By following these steps, you can ensure that your resources are always **clean** and **tidy** and it will also help you to **avoid unnecessary costs**.
--
+
 ### 12.1. Kubernetes Deployment:
 ```
 kubectl delete deployment <deployment-name>
@@ -449,7 +449,6 @@ aws ec2 terminate-instances \
 `<instance-id>` with your **instance-ids**. <br>
 
 - Remember to always follow the best practices and guidelines provided by your cloud provider to ensure a smooth and efficient cleanup process.
-- Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
 - Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
 
   Keep in mind that this example is minimal and focuses on the basic steps. <br>
