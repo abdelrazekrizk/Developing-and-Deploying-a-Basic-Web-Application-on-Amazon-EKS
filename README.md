@@ -296,7 +296,7 @@ Follow the Official Amazon Quick start: Publishing to `Amazon ECR Public` using 
 `<your-region>` with your **region**.<br>
 `<cluster-name>` with your **cluster name**. <br>
 `<aws_account_id>` with your **aws_account_id**.<br>
-`<PrivateSubnet01>,<PrivateSubnet02>,<PublicSubnet01>,<PublicSubnet02>` with your **public** and **private** subnets from `cloud-formation outputs`.<br>
+`<PrivateSubnet01>`,`<PrivateSubnet02>`,`<PublicSubnet01>`,`<PublicSubnet02>` with your **public** and **private** subnets from `cloud-formation outputs`.<br>
 `<Security-group>` with your **Security group**
 
  ### 8.2. Configure your computer to communicate with your cluster.
@@ -361,11 +361,11 @@ depending on which IP family you created your cluster **IPv4** or **IPv6**.
 - **Replace:**<br>
 `<cluster-name>` with your **cluster name**. <br>
 `<nodegroup-name>` with your **nodegroup-name**.<br>
-`<desiredSize>` with your The **current number** of nodes that the managed node group should **maintain** should not be `higher than` the **maxSize**. <br>
-`<minSize>` with your The **minimum number** of nodes that the managed node group can **scale in** to. <br>
-`<maxSize>` with your The **maximum number** of nodes that the managed node group can **scale out** to. <br>
-`<subnets>` with your The **subnets** to use for the **Auto Scaling group** that is created for your **node group** from previous step **Create an Amazon VPC**. <br>
-`<instance-types>` with your the **instance types** for a **node group**. <br>
+`<desiredSize>` with The **current number** of nodes that the managed node group should **maintain** should not be `higher than` the **maxSize**. <br>
+`<minSize>` with The **minimum number** of nodes that the managed node group can **scale in** to. <br>
+`<maxSize>` with The **maximum number** of nodes that the managed node group can **scale out** to. <br>
+`<subnets>` with your **subnetIds** to use for the **Auto Scaling group** that was created for your **node group** from previous step **Create an Amazon VPC**. <br>
+`<instance-types>` with the **instance types** for a **node group**. <br>
 `<aws_account_id>` with your **aws_account_id**.<br>
 `<nodegroup-role>` with your **AmazonEKSNodeRole** AIM Role from previous step **Create a Node AIM Policy Role**.
 
@@ -391,10 +391,6 @@ Wait for the LoadBalancer service to be assigned an external IP address:
        kubectl get svc my-eks-web-app -w
 
 Once the external IP is available, you can access your web application in a browser using that IP.
-
-  Keep in mind that this example is minimal and focuses on the basic steps. <br>
-  In a production scenario, you would likely include more `features`, `security measures`, and `configurations`.<br>
-  Additionally, you might want to explore tools like `Helm` for managing `Kubernetes manifests` more efficiently.
 
 ## Step 12: Cleanup.
 - Cleaning up your resources is an important part of managing your cloud environment. <br>
@@ -455,3 +451,7 @@ aws ec2 terminate-instances \
 - Remember to always follow the best practices and guidelines provided by your cloud provider to ensure a smooth and efficient cleanup process.
 - Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
 - Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
+
+  Keep in mind that this example is minimal and focuses on the basic steps. <br>
+  In a production scenario, you would likely include more `features`, `security measures`, and `configurations`.<br>
+  Additionally, you might want to explore tools like `Helm` for managing `Kubernetes manifests` more efficiently.
