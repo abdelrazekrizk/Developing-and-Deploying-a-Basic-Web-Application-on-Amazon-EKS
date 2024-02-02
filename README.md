@@ -1,11 +1,21 @@
-# Automating the Developing and Deploying a Basic Web Application on Amazon EKS
+# Developing and Deploying a Basic Web Application on Amazon EKS
 
-This is a guide on how to Automating the Developing and Deploying a Basic Web Application on Amazon EKS <br>
-using AWS CodePipeline. <br>
-Whether you are new to Amazon EKS or looking to level up your skills, this repository has you covered.<br> Below are the steps to follow:
+**Architecture:**
 
-## Guide on How to Deploy a Basic Flask Web Application on Amazon EKS Using AWS CodePipeline
+<img src="./Architecture/Web-Application-Autoscaling.png" width="1000"/>
 
+This is a guide on how to Developing and Deploying a Basic Web Application on Amazon EKS <br>
+## Learning Objectives:
+
+* Gain hands-on experience with containerization using **Docker**.<br>
+* Understand how to use **Amazon ECR** to store and manage **container images**.<br>
+* Learn the basics of creating and managing an **Amazon EKS cluster**.<br>
+* Explore Kubernetes concepts like **Deployments**, **Services**, and **Horizontal Pod Autoscaling**.<br>
+* Implement **multi-AZ** deployment to ensure **high availability**.<br>
+
+Whether you are new to Amazon EKS or looking to level up your skills, this repository has you covered.<br>
+
+`Note`: that Tutorial using `AIM with Administrative User`.<br>
 Below are the steps to follow:
 
 ## Table of Contents
@@ -14,69 +24,74 @@ Below are the steps to follow:
 - [Step 3: Create a requirements.txt File](#step-3-create-a-requirementstxt-file)
 - [Step 4: Preparing Your Environment](#step-4-preparing-your-environment)
 - [Step 5: Build and Push Docker Image to Amazon ECR](#step-5-build-and-push-docker-image-to-amazon-ecr)
-- [Step 6: Step 6: Create Amazon ECR Pprivate Repository](#step-6-create-amazon-ecr-private-repository)
+- [Step 6: Step 6: Create Amazon ECR Repository](#step-6-create-amazon-ecr-repository)
 - [Step 7: Setup Amazon EKS Cluster Requirements](#step-7-setup-amazon-eks-cluster-requirements)
 - [Step 8: Creating an Amazon EKS cluster](#step-8-creating-an-amazon-eks-cluster)
-- [Step 9: Creating an Amazon EKS cluster](#step-9-creating-an-amazon-eks-cluster)
+- [Step 9: Create a Node Group](#step-9-create-a-node-group)
 - [Step 10: Create a Kubernetes Deployment](#step-10-create-a-kubernetes-deployment)
-- [Step 11: Set Up AWS CodePipeline](#step-10-set-up-aws-codepipeline)
 - [Step 11: Test The Application](#step-11-test-the-application)
+- [Step 12: Cleanup](#step-12-cleanup)
 
+## Step 1: Create a Flask Web Application.
+Create a basic `Flask web application`. <br> [app.py](./app/app.py):
 
-## Step 1: Create a Flask Web Application
-Create a basic Flask web application. <br> [app.py](./app/app.py):
+## Step 2: Create a Dockerfile.
+Create a `Dockerfile` to containerize the Flask application.<br> [Dockerfile](./Dockerfile):
 
-## Step 2: Create a Dockerfile
-Create a Dockerfile to containerize the Flask application.<br> [Dockerfile](./Dockerfile):
-
-## Step 3: Create a requirements.txt File
+## Step 3: Create a requirements.txt File.
 Create a `requirements.txt` file to list the Python dependencies.<br> [requirements.txt](./requirements.txt):
 
-## Step 4: Preparing Your Environment
-Assuming you have an Docker and Kubectl. if not <br> Below are the steps to follow:<br>
+## Step 4: Preparing Your Environment.
+Assuming you have an **Docker** and **Kubectl**. if not <br> Below are the steps to follow:<br>
+
 ### 4.1. Update the installed packages and package cache on your instance.
+
     sudo apt-get update
     apt list --upgradable
     sudo apt upgrade -y
 
-### 4.2. Installing Docker <br>
+### 4.2. Installing Docker.
+
     sudo apt-get install docker.io -y
 
 - Start the Docker service.
 
-        sudo systemctl enable docker
-        sudo systemctl start docker
+```
+sudo systemctl enable docker
+```
+```
+sudo systemctl start docker
+```
 
 - Add the `ubuntu user` to the `docker group` so you can execute Docker commands without using `sudo`.
 
         sudo usermod -aG docker ubuntu
 
-- Log out and log back in again to pick up the new docker group permissions.
+- **Log out** and **log back in** again or **restart** your **EC2** to pick up the new docker group permissions.
 
 - Verify that the ubuntu can run Docker commands without sudo.
 
         docker run hello-world
 
 - Troubleshoot Docker Engine installation.
-- docker: permission denied while trying to connect to the Docker daemon socket<br>
-        at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create":<br>
-        dial unix /var/run/docker.sock: connect: permission denied.
-
-       sudo chmod 666 /var/run/docker.sock
-
-       sudo addgroup docker
-
-You can find the more guide [here](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html).
-
-`Note`: that Tutorial using `ubuntu-jammy-22.04-amd64-server` Operation System<br>
+```
+permission denied while trying to connect to the Docker daemon socket
+at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create":
+dial unix /var/run/docker.sock: connect: permission denied.
+```
+- Run the follow command:
+```
+sudo chmod 666 /var/run/docker.sock
+```
+`Note`: that Tutorial using **EC2** with `ubuntu-jammy-22.04-amd64-server` Operation System<br>
         Docker version `24.0.5`, build `24.0.5-0`ubuntu1`~22.04.1` <br>
-For other Operation System Follow the Official Docker Documunts [here](https://docs.docker.com/desktop/).
+For other Operation System Follow the Official Docker Documunts [here](https://docs.docker.com/desktop/install/linux-install/).
 
 ### Step 5: Build and Push Docker Image to Amazon ECR.
 
-Assuming you have an AWS account, follow these steps:
+Assuming you have an `AWS account`, follow these steps:
 
-### 5.1. Set Up the AWS CLI
+### 5.1. Set Up the AWS CLI.
 - AWS CLI install and update
 
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -85,13 +100,13 @@ Assuming you have an AWS account, follow these steps:
 
 before that step you may need to install `unzip` using `sudo apt install unzip`
 
-- Confirm the installation
+- Confirm the installation.
 
         aws --version
 
 output: `aws-cli/2.15.13` Python/`3.11.6 `Linux/`6.2.0-1017`-aws exe/x86_64.ubuntu.22 `prompt/off`
 
-- Configure the AWS CLI
+- Configure the AWS CLI.
 
         aws configure
 
@@ -101,21 +116,22 @@ Default region name [None]:`<your-region>`<br>
 Default output format [None]:
 
 ### 5.2. Build and Run Docker Image
-- Open a terminal or command prompt and navigate to the directory containing the Dockerfile and run the following command:
+- Open a terminal or command prompt and navigate to the directory containing the **Dockerfile** and run the following command:
 
         docker build -t my-eks-web-app .
 
-- Run the newly built image
+- Run the newly built image.
 
         docker run -p 5000:5000 my-eks-web-app
 
 - Running Docker locally, point your browser to` http://localhost:5000/ `or `http://127.0.0.1:5000/`
 
-### Step 6: Create Amazon ECR Private Repository.
+### Step 6: Create Amazon ECR Repository.
 
-* Create an ECR repository to store your Docker images.
-* Make note of the repository URI
-### 6.1. Ensure ECR Permissions
+* Create an **ECR repository** to store your Docker images.
+* Make note of the repository URI.
+
+### 6.1. Ensure ECR Permissions.
 
 - Verify that your IAM user or role has the necessary permissions to access the ECR repository.<br>
  The required permissions include: <br>
@@ -123,29 +139,31 @@ Default output format [None]:
 `ecr:GetAuthorizationToken `<br>
 `ecr:BatchCheckLayerAvailability` <br>
 
-You can attach the `AmazonEC2ContainerRegistryPowerUs`er policy to your IAM user or role to grant these permissions.
+You can attach the `AmazonEC2ContainerRegistryPowerUser` policy to your **IAM user** or **role** to grant these permissions.
 
-### 6.2. Log in to AWS ECR
+### 6.2. Log in to AWS ECR.
 
- ### *private Registry*
+ ### *private Registry.*
 
 - Authenticate a private repository.
 
-        aws ecr get-login-password --region `<your-region>` | docker login --username AWS --password-stdin `<aws_account_id>`.dkr.ecr.`<your-region>`.amazonaws.com
+      aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com
 
-Replace `<your-region>` with your region.<br>
-Replace `<aws_account_id>` with your aws_account_id <br>
+- **Replace:**<br>
+`<your-region>` with your **region**.<br>
+`<aws_account_id>` with your **aws_account_id** <br>
 
-### 6.3. Create a private repository
+### 6.3. Create a private repository.
 
         aws ecr create-repository \
                 --repository-name <repository-name> \
                 --region <your-region>
 
-Replace `<repository-name>` with your repository-name.<br>
-Replace `<your-region>` with your region.<br>
+- **Replace:**<br>
+`<repository-name>` with your **repository-name**.<br>
+`<your-region>` with your **region**.<br>
 
-### 6.4. Tag and Push Docker Image
+### 6.4. Tag and Push Docker Image.
 
 - Tag the image to push to your private repository.<br>
 - List the images you have stored locally to identify the image to tag and push.
@@ -160,21 +178,22 @@ Replace `<your-region>` with your region.<br>
 
         docker push <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/<repository-name:tag>
 
-Replace `<image-name:tag>` with your image-name:tag `ex: hello-world:latest`<br>
-Replace `<aws_account_id>` with your aws_account_id.<br>
-Replace `<your-region>` with your region.<br>
-Replace `<repository-name>` with your repository-name.<br>
+- **Replace:**<br>
+`<image-name:tag>` with your **image-name:tag** `ex: hello-world:latest`<br>
+`<aws_account_id>` with your **aws_account_id**.<br>
+`<your-region>` with your **region**.<br>
+`<repository-name>` with your **repository-name**.<br>
 `Note`: ECR repository URI= `<aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/<repository-name:tag>`
 
 Follow the Official Amazon Quick start: Publishing to `Amazon ECR Pprivate repository` using the AWS CLI [here](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html).
 
-  ### *Public Registry*
+  ### *Public Registry.*
 
 - Authenticate a public repository.
 
         aws ecr-public get-login-password --region <your-region> | docker login --username AWS --password-stdin public.ecr.aws
 
-- Create a public repository
+- Create a public repository.
 - Open a terminal or command prompt and navigate to the ECR directory and run the following command:.
 
         aws ecr-public create-repository \
@@ -182,8 +201,9 @@ Follow the Official Amazon Quick start: Publishing to `Amazon ECR Pprivate repos
              --catalog-data file://repositorycatalogdata.json \
              --region <your-region>
 
-Replace `<repository-name>` with your repository-name.<br>
-Replace `<your-region>` with your region.<br>
+- **Replace:**<br>
+`<repository-name>` with your **repository-name**.<br>
+`<your-region>` with your **region**.<br>
 
 - Tag and Push an image to `Amazon ECR Public`repository. <br>
 List the images you have stored locally to identify the image to tag and push.
@@ -195,20 +215,21 @@ which was in the response to the `create-repository` call you made in the previo
 
         docker tag <image-name:tag> public.ecr.aws/registry_alias/<repository-name>
 
-- Push the image to the Amazon ECR
+- Push the image to the Amazon ECR.
 
         docker push public.ecr.aws/registry_alias/<repository-name>
 
-- Pull the image from the Amazon ECR
+- Pull the image from the Amazon ECR.
 
         docker pull public.ecr.aws/g7p1j8g3/hello-flask:v.1
 
-Replace `<registry_alias>` with your registry_alias.<br>
-Replace `<repository-name>` with your repository-name.<br>
+- **Replace:**<br>
+`<registry_alias>` with your **registry_alias**.<br>
+`<repository-name>` with your **repository-name**.<br>
 
 Follow the Official Amazon Quick start: Publishing to `Amazon ECR Public` using the AWS CLI [here](https://docs.aws.amazon.com/AmazonECR/latest/public/getting-started-cli.html).
 
-## Step 7: Set Up Amazon EKS Cluster
+## Step 7: Set Up Amazon EKS Cluster.
 - Follow the official Amazon EKS Getting Started guide to create an Amazon EKS cluster.
 - Download the kubectl binary for your cluster's Kubernetes version from Amazon S3.
 - Kubernetes 1.29
@@ -231,24 +252,35 @@ Follow the Official Amazon Quick start: Publishing to `Amazon ECR Public` using 
 
 ### 7.1. Create an Amazon IAM Policy Role.
 
-- Create IAM Policy Role
-- Create a cluster IAM role and attach the required Amazon EKS IAM managed policy to it.
-- Open a terminal or command prompt and navigate to the `EKS directory` and run the following command:.
+- Create IAM Policy Role.
+- Create a cluster IAM role and attach the required `Amazon EKS IAM managed policy` to it.
+- Open a terminal or command prompt and navigate to the **EKS directory** and run the following command:.
 
-        aws iam create-role   --role-name <Policy-Role-Name>  --assume-role-policy-document file://"eks-cluster-role-trust-policy.json"
+        aws iam create-role --role-name <Policy-Role-Name> \
+        aws iam create-role --role-name <Policy-Role-Name> \
+            --assume-role-policy-document file://"eks-cluster-role-trust-policy.json"
 
-- Attach Policy Role
+- Attach Policy Role.
 - Attach the required Amazon EKS managed IAM policy to the role.
--
-        aws iam attach-role-policy   --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy   --role-name EKS-Cluster-trust-policy-role
 
-### 7.2. Create an Amazon VPC
-- Create an Amazon VPC with public and private subnets that meets Amazon EKS requirements
-- Open a terminal or command prompt and navigate to the `cloudformation directory` and run the following command:.
+        aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
+            --role-name EKS-Cluster-trust-policy-role
 
-        aws cloudformation create-stack --region <your-region> --stack-name <stack-name> --template-body file://amazon-eks-vpc-private-subnets.yaml
+### 7.2. Create an Amazon VPC.
+- Create an Amazon VPC with public and private subnets that meets Amazon EKS requirements.
+- Open a terminal or command prompt and navigate to the **cloudformation directory** and run the following command:.
 
-- Navigate to the `cloud-formation outputs` and write down:<br>
+        aws cloudformation create-stack \
+            --region <your-region> \
+            --stack-name <stack-name> \
+            --template-body file://amazon-eks-vpc-private-subnets.yaml
+
+- **Replace:**<br>
+`<your-region>` with your **region**.<br>
+`<stack-name>` with your **stack-name**.<br>
+
+- Navigate to the `cloud-formation outputs` Make note and write down:<br>
             - Subnets IDs in the **VPC** `<PrivateSubnet01>, <PrivateSubnet02>, <PublicSubnet01>, <PublicSubnet02>`<br>
             - **SecurityGroups** `<Security group>`
 
@@ -260,13 +292,14 @@ Follow the Official Amazon Quick start: Publishing to `Amazon ECR Public` using 
            --role-arn arn:aws:iam::<aws_account_id>:role/myAmazonEKSClusterRole \
            --resources-vpc-config subnetIds=<PrivateSubnet01>,<PrivateSubnet02>,<PublicSubnet01>,<PublicSubnet02>,securityGroupIds=<Security-group>
 
-Replace `<your-region>` with your **region**.<br>
-Replace `<cluster-name>` with your **cluster name**. <br>
-Replace `<aws_account_id>` with your **aws_account_id**.<br>
-Replace `<PrivateSubnet01>,<PrivateSubnet02>,<PublicSubnet01>,<PublicSubnet02>` with your **public** and **private** subnets from `cloud-formation outputs`.<br>
-Replace `<Security-group>` with your **Security group**
+- **Replace:**<br>
+`<your-region>` with your **region**.<br>
+`<cluster-name>` with your **cluster name**. <br>
+`<aws_account_id>` with your **aws_account_id**.<br>
+`<PrivateSubnet01>,<PrivateSubnet02>,<PublicSubnet01>,<PublicSubnet02>` with your **public** and **private** subnets from `cloud-formation outputs`.<br>
+`<Security-group>` with your **Security group**
 
- ### 8.2. Configure your computer to communicate with your cluster
+ ### 8.2. Configure your computer to communicate with your cluster.
 
         aws eks update-kubeconfig --region <your-region> --name <cluster-name>
 
@@ -274,33 +307,36 @@ Replace `<Security-group>` with your **Security group**
 
         kubectl get svc
 
-## Step 9: Create a Node Group
+## Step 9: Create a Node Group.
 
-### 9.1 Create a Node AIM Policy Role
+### 9.1 Create a Node AIM Policy Role.
 
 - Create a node IAM role and attach the required Amazon Node IAM managed policy to it.
 - Open a terminal or command prompt and navigate to the `EKS directory` and run the following command:.
 
         aws iam create-role \
-          --role-name AmazonEKSNodeRole \
-          --assume-role-policy-document file://"node-role-trust-relationship.json"
+            --role-name AmazonEKSNodeRole \
+            --assume-role-policy-document file://"node-role-trust-relationship.json"
 
 - Attach Policy Role.
 - Attach the required `Amazon EKS Worker Node` `Amazon and EC2 Container Registry ReadOnly` Policy to the role.
 
-        aws iam attach-role-policy \
-          --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
-          --role-name AmazonEKSNodeRole
-
-        aws iam attach-role-policy \
-          --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
-          --role-name AmazonEKSNodeRole
-
+```
+aws iam attach-role-policy \
+    --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
+    --role-name AmazonEKSNodeRole
+```
+```
+aws iam attach-role-policy \
+    --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
+    --role-name AmazonEKSNodeRole
+```
 - Determine the IP family of your cluster.
 
         aws eks describe-cluster --name my-cluster | grep ipFamily
 
-depending on which IP family you created your cluster with.
+depending on which IP family you created your cluster **IPv4** or **IPv6**.
+- **IPv4**
 
         aws iam attach-role-policy \
           --policy-arn arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy \
@@ -308,41 +344,47 @@ depending on which IP family you created your cluster with.
 
  Follow the Official `Amazon EKS node IAM role` using the AWS CLI [here](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)
 
-### 9.2 Create a Node Group
+### 9.2 Create a Node Group.
+
+- Provision compute capacity for your cluster by adding a Managed node group.
 
         aws eks create-nodegroup \
             --cluster-name <cluster-name> \
             --nodegroup-name <nodegroup-name> \
-            --scaling-config min-size=2,max-size=3 \
-            --subnets <Subnet01>,<Subnet02> \
-            --instance-types t3.small \
+            --scaling-config desiredSize=(integer),minSize=(integer),maxSize=3 \
+            --subnets <PrivateSubnet01> <PrivateSubnet02> <PublicSubnet01> <PublicSubnet02> \
+            --instance-types t2.micro \
             --disk-size 8 \
             --ami-type AL2_x86_64 \
-            --node-role-arn arn:aws:iam::<aws_account_id>:role/<nodegroup-role>
+            --node-role arn:aws:iam::<aws_account_id>:role/<nodegroup-role>
 
-Replace `<cluster-name>` with your **cluster name**. <br>
-Replace `<nodegroup-name>` with your **nodegroup-name**.<br>
-Replace `<aws_account_id>` with your **aws_account_id**.<br>
-Replace `<nodegroup-role>` with your **AmazonEKSNodeRole** AIM Role from .
+- **Replace:**<br>
+`<cluster-name>` with your **cluster name**. <br>
+`<nodegroup-name>` with your **nodegroup-name**.<br>
+`<desiredSize>` with your The **current number** of nodes that the managed node group should **maintain** should not be `higher than` the **maxSize**. <br>
+`<minSize>` with your The **minimum number** of nodes that the managed node group can **scale in** to. <br>
+`<maxSize>` with your The **maximum number** of nodes that the managed node group can **scale out** to. <br>
+`<subnets>` with your The **subnets** to use for the **Auto Scaling group** that is created for your **node group** from previous step **Create an Amazon VPC**. <br>
+`<instance-types>` with your the **instance types** for a **node group**. <br>
+`<aws_account_id>` with your **aws_account_id**.<br>
+`<nodegroup-role>` with your **AmazonEKSNodeRole** AIM Role from previous step **Create a Node AIM Policy Role**.
 
 
 ## Step 10: Create a Kubernetes Deployment.
 
  ### 10.1. Create a Kubernetes deployment file.<br> [deployment.yaml](./deployment.yaml):<br>
 
-Replace `<your-ecr-repository-uri>` with your ECR repository URI.
+- **Replace:**<br>
+`<your-ecr-repository-uri>` with your **ECR repository URI**.
 
- ### 10.2. Apply the Deployment
+ ### 10.2. Apply the Deployment.
 - Apply the Kubernetes Deployment:
 
          kubectl apply -f deployment.yaml
 
-
-
-## Step 11: Test the Application
+## Step 11: Test the Application.
 
 Wait for the LoadBalancer service to be assigned an external IP address:
-
 
 - Obtain the Load Balancer URL:
 
@@ -350,151 +392,66 @@ Wait for the LoadBalancer service to be assigned an external IP address:
 
 Once the external IP is available, you can access your web application in a browser using that IP.
 
-#####################################################################################################################
-#                                                                                                                    #
   Keep in mind that this example is minimal and focuses on the basic steps. <br>
   In a production scenario, you would likely include more `features`, `security measures`, and `configurations`.<br>
   Additionally, you might want to explore tools like `Helm` for managing `Kubernetes manifests` more efficiently.
-#                                                                                                                    #
-######################################################################################################################
 
-## Step 10: Set Up AWS CodePipeline
-Follow these steps to set up AWS CodePipeline:
+## Step 12: Cleanup.
+- Cleaning up your resources is an important part of managing your cloud environment. <br>
+- By following these steps, you can ensure that your resources are always **clean** and **tidy** and it will also help you to **avoid unnecessary costs**.
+-
+### 12.1. Kubernetes Deployment:
+```
+kubectl delete deployment <deployment-name>
+```
+- **Replace:**<br>
+`<deployment-name>` with your **deployment-name**. <br>
 
-### 10.1. Create an S3 Bucket for CodePipeline Artifacts
+### 12.2. Amazon Node Group:
 
-    aws s3api create-bucket --bucket <bucket- name> --region <your-region>
+```
+aws eks delete-nodegroup \
+  --cluster-name <cluster-name> \
+  --nodegroup-name <nodegroup-name>
+```
+- **Replace:**<br>
+`<cluster-name>` with your **cluster name**. <br>
+`<nodegroup-name>` with your **nodegroup-name**.<br>
 
-### 10.2. Create a CodePipeline IAM Role
-Create an **IAM role** with the **necessary permissions** for CodePipeline.<br>
-Attach the  policies.<br>
-`AmazonEKSClusterPolicy`, <br>
-`AWSCodePipelineCustomEKSContainerPolicy`
+### 12.3. Amazon EKS Cluster:
+```
+aws eks delete-cluster \
+  --name <cluster-name>
+```
+- **Replace:**<br>
+`<cluster-name>` with your **cluster name**. <br>
 
- 1. Create an IAM role:
+### 12.4. CloudFormation Stack:
+```
+aws cloudformation delete-stack \
+  --stack-name <stack-name>
+```
+- **Replace:**<br>
+`<stack-name>` with your **stack-name**. <br>
 
-            aws iam create-role --role-name CodePipelineEKSRole --assume-role-policy-document file://trust-policy.json
+### 12.5. EC2 (Stop or Terminate):
 
-2. Attach the following policies to the role:
+* To stop an EC2 instance:
 
-   ```
-   aws iam attach-role-policy --role-name CodePipelineEKSRole --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
-   ```
+```
+aws ec2 stop-instances \
+--instance-ids <instance-id>
+```
 
-   ```
-   aws iam attach-role-policy --role-name CodePipelineEKSRole --policy-arn arn:aws:iam::aws:policy/AWSCodePipelineCustomEKSContainerPolicy
-   ```
+* To terminate an EC2 instance:
 
-3. Grant the role access to the Amazon EKS cluster:
+```
+aws ec2 terminate-instances \
+--instance-ids <instance-id>
+```
+- **Replace:**<br>
+`<instance-id>` with your **instance-ids**. <br>
 
-           aws eks update-cluster-config --name eks-cluster-name --role-arn arn:aws:iam::account-id:role/CodePipelineEKSRole
-
-
-4. **Configure CodePipeline to use the role:**
-
-   In the CodePipeline console, create a new pipeline or edit an existing one.
-
-   Under **Service role**, select the `CodePipelineEKSRole` role.
-
-
-
-### 10.3. Create CodePipeline
-Use the AWS Management Console or AWS CLI to create a CodePipeline. <br>
-Set up the source (GitHub or other) and configure the build stage using CodeBuild.<br>
-- Follow these step
-1. Open the **AWS Management Console**.
-2. Navigate to the **CodePipeline service**.
-3. Click on **Create pipeline**.
-4. Provide a name for your pipeline (e.g., my-eks-web-app-pipeline).
-5. choose the Pipeline type **v.2** or **v.1**
-6. In the Service role section, choose the **IAM role** you created in the previous step.<br>
-7. `Artifact store:` **S3 Bucket** you created in the previous step
-Click on **Next** .
-
-#### 10.3.1 Add Source Stage
-- Follow these step
-1. Choose the source provider for your code (e.g., GitHub).
-2. Connect to your GitHub repository and configure the branch choose **main**.
-3. Choose a repository that you have already created where you have pushed your source code.
-4. Choose a branch of the repository Branch name **main**
-5. Choose a detection mode to automatically start your pipeline when a change occurs in the source code. **AWS CodePipeline**
-6. Choose the output artifact format uses the default **zip format**.<br>
-Click on Next.
-
-#### 10.3.2 Add Build Stage (CodeBuild)
-- Follow these step
-For the `build provider`: **AWS CodeBuild**.<br>
-If you don't have an existing **CodeBuild** project, create a new one. Provide a name and configure the build settings:<br>
-- Follow these step to Create build project:
-1. Choose a `Project name`
-2. `Environment Image:` **Custom image**.
-3. `Environment Type:` **Linux EC2**
-4. `Image registry:` **ECR** or **Docker registry**
-5. `ECR account:` **My ECR account**
-6. `ECR repository:` **Repository-name**
-7. `ECR image:` **image name**
-8. `Image pull credentials:`
-9. `Role:` Existing service role (choose the **CodeBuild** role you created earlier)
-10. `Buildspec:` Use a buildspec file **buildspec.yml** . <br>
-Click on **Continue to CodePipeline**.
-11. `Build type:` **Single build**
-
-#### 10.3.3 Add Deploy Stage (Amazon EKS)
-- Follow these step
-For the deploy provider, choose Amazon EKS.<br>
-Configure the deployment settings:<br>
-1. `Cluster Name:` Choose the **EKS cluster** you created earlier.<br>
-2. `Region:` Choose your **AWS region**.<br>
-3. `Namespace:` Provide a **Kubernetes namespace** for your application (e.g., default).<br>
-4. `Service Name:` Provide the name of the **Kubernetes service** you defined in the **deployment.yaml**.<br>
-Click on Next.<br>
-
-#### 10.3.4 Review and Create
-Review the pipeline configuration.<br>
-Click on **Create pipeline**.<br>
-
-Your CodePipeline is now set up, and it will automatically trigger when changes are pushed to the source repository. <br>
-The pipeline will build the Docker image, push it to ECR, and deploy the updated application to your **Amazon EKS cluster**.
-
-## Step 11: Test the Application
-Once the CodePipeline completes, check the progress in the **AWS CodePipeline console**.<br>
-you should be able to access your web application.
-
-- Obtain the Load Balancer URL:
-
-        kubectl get svc my-eks-web-app -w
-
-Access the application using the **Load Balancer URL**.
-
-Congratulations! You've successfully set up a **CI/CD pipeline** for a containerized web application on **Amazon EKS**.
-
-Amazon Elastic Container Service:
-
-Cluster name
-
-Default namespace
-Infrastructure
-Amazon EC2 instances
-Manual configurations
-Auto Scaling group
-Provisioning model On-demand Spot
-Operating system/Architecture Linux2
-EC2 instance type t2 micro
-
-aws deploy create-deployment-group \
-    --application-name my-eks-web-app \
-    --deployment-group-name my-eks-web-app-deploy-gr \
-    --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
-    --service-role-arn arn:aws:iam::307169715738:role/CodeDeploy-Access-EC2-Auto-Scaling\
-    --ecs-services my-eks-web-app-ecs-ser\
-    --target-group-info-list targetGroupInfoList=[{name=target1},{name=target2}] \
-    --load-balancer-info elbInfoList=[{name=my-eks-web-app-load-balancer}]
-
-aws deploy create-deployment-group \
-    --application-name my-app \
-    --deployment-group-name my-deployment-group \
-    --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
-    --service-role-arn arn:aws:iam::123456789012:role/CodeDeployServiceRole \
-    --ecs-services ecs-service-name \
-    --target-group-info-list targetGroupInfoList=[{name=targetGroup1},{name=targetGroup2}] \
-    --load-balancer-info elbInfoList=[{name=my-load-balancer}]
+- Remember to always follow the best practices and guidelines provided by your cloud provider to ensure a smooth and efficient cleanup process.
+- Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
+- Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
