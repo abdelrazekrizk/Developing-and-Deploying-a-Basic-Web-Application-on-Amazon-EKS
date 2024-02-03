@@ -185,7 +185,7 @@ You can attach the `AmazonEC2ContainerRegistryPowerUser` policy to your **IAM us
 `<repository-name>` with your **repository-name**.<br>
 `Note`: ECR repository URI= `<aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/<repository-name:tag>`
 
-Follow the Official Amazon Quick start: Publishing to `Amazon ECR Pprivate repository` using the AWS CLI [here](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html).
+Follow the Official Documunts Amazon Quick start: Publishing to `Amazon ECR Pprivate repository` using the AWS CLI [here](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html).
 
   ### *Public Registry.*
 
@@ -230,7 +230,7 @@ which was in the response to the `create-repository` call you made in the previo
 Follow the Official Amazon Quick start: Publishing to `Amazon ECR Public` using the AWS CLI [here](https://docs.aws.amazon.com/AmazonECR/latest/public/getting-started-cli.html).
 
 ## Step 7: Set Up Amazon EKS Cluster.
-- Follow the official Amazon EKS Getting Started guide to create an Amazon EKS cluster.
+- Follow the official Documunts `Amazon EKS Getting Started guide` to create an Amazon EKS cluster.
 - Download the kubectl binary for your cluster's Kubernetes version from Amazon S3.
 - Kubernetes 1.29
 
@@ -342,7 +342,7 @@ depending on which IP family you created your cluster **IPv4** or **IPv6**.
           --policy-arn arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy \
           --role-name AmazonEKSNodeRole
 
- Follow the Official `Amazon EKS node IAM role` using the AWS CLI [here](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)
+ Follow the Official Documunts `Amazon EKS node IAM role` using the AWS CLI [here](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)
 
 ### 9.2 Create a Node Group.
 
@@ -387,9 +387,14 @@ depending on which IP family you created your cluster **IPv4** or **IPv6**.
 Wait for the LoadBalancer service to be assigned an external IP address:
 
 - Obtain the Load Balancer URL:
-
-       kubectl get svc my-eks-web-app -w
-
+```
+kubectl get svc my-eks-web-app -w
+```
+- output
+```
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+my-eks-web-app   LoadBalancer   10.100.190.72   a47bd5cd4514f4f1428151bbd6f3446c-4482297959.us-west-1.elb.amazonaws.com   80:30606/TCP   2d4h
+```
 Once the external IP is available, you can access your web application in a browser using that IP.
 
 ## Step 12: Cleanup.
@@ -403,18 +408,33 @@ kubectl delete deployment <deployment-name>
 - **Replace:**<br>
 `<deployment-name>` with your **deployment-name**. <br>
 
-### 12.2. Amazon Node Group:
+### 12.2. Kubernetes Deployment:
 
+#### 12.2.1 List all services running in your cluster.
+```
+kubectl get svc --all-namespaces
+```
+#### 12.2.2 Delete any services that have an associated EXTERNAL-IP value.
+- These services are fronted by an Elastic Load Balancing load balancer,<br> and you must delete them in Kubernetes to allow the load balancer and associated resources to be properly released.
+```
+kubectl delete svc <service-name>
+```
+- **Replace:**<br>
+`<service-name>` with your **service-name**. <br>
+
+### 12.3. Amazon Node Group:
 ```
 aws eks delete-nodegroup \
   --cluster-name <cluster-name> \
-  --nodegroup-name <nodegroup-name>
+  --nodegroup-name <nodegroup-name> \
+  --region <your-region>
 ```
 - **Replace:**<br>
 `<cluster-name>` with your **cluster name**. <br>
 `<nodegroup-name>` with your **nodegroup-name**.<br>
+`<your-region>` with your **region**.<br>
 
-### 12.3. Amazon EKS Cluster:
+### 12.4. Amazon EKS Cluster:
 ```
 aws eks delete-cluster \
   --name <cluster-name>
@@ -422,7 +442,7 @@ aws eks delete-cluster \
 - **Replace:**<br>
 `<cluster-name>` with your **cluster name**. <br>
 
-### 12.4. CloudFormation Stack:
+### 12.5. CloudFormation Stack:
 ```
 aws cloudformation delete-stack \
   --stack-name <stack-name>
@@ -430,7 +450,7 @@ aws cloudformation delete-stack \
 - **Replace:**<br>
 `<stack-name>` with your **stack-name**. <br>
 
-### 12.5. EC2 (Stop or Terminate):
+### 12.6. EC2 (Stop or Terminate):
 
 * To stop an EC2 instance:
 
@@ -449,7 +469,8 @@ aws ec2 terminate-instances \
 `<instance-id>` with your **instance-ids**. <br>
 
 - Remember to always follow the best practices and guidelines provided by your cloud provider to ensure a smooth and efficient cleanup process.
-- Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.
+- Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.<br>
+Follow the Official Documunts `Deleting an Amazon EKS cluster` [here](https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html)
 
   Keep in mind that this example is minimal and focuses on the basic steps. <br>
   In a production scenario, you would likely include more `features`, `security measures`, and `configurations`.<br>
