@@ -36,10 +36,10 @@ Below are the steps to follow:
 Create a basic `Flask web application`. <br> [app.py](./app/app.py):
 
 ## Step 2: Create a Dockerfile.
-Create a `Dockerfile` to containerize the Flask application.<br> [Dockerfile](./Dockerfile):
+Create a `Dockerfile` to containerize the Flask application.<br> [Dockerfile](./app/Dockerfile):
 
 ## Step 3: Create a requirements.txt File.
-Create a `requirements.txt` file to list the Python dependencies.<br> [requirements.txt](./requirements.txt):
+Create a `requirements.txt` file to list the Python dependencies.<br> [requirements.txt](./app/requirements.txt):
 
 ## Step 4: Preparing Your Environment.
 Assuming you have an **Docker** and **Kubectl**. if not <br> Below are the steps to follow:<br>
