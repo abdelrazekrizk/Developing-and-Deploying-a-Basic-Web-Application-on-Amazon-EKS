@@ -408,7 +408,7 @@ kubectl delete deployment <deployment-name>
 - **Replace:**<br>
 `<deployment-name>` with your **deployment-name**. <br>
 
-### 12.2. Kubernetes Deployment:
+### 12.2. Kubernetes Services:
 
 #### 12.2.1 List all services running in your cluster.
 ```
