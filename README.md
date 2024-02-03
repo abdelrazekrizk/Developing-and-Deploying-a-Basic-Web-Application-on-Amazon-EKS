@@ -1,6 +1,6 @@
 # Developing and Deploying a Basic Web Application on Amazon EKS
 
-**Architecture:**
+**Architecture Diagram:**
 
 <img src="./Architecture/Web-Application-Autoscaling.png" width="1000"/>
 
@@ -256,8 +256,8 @@ Follow the Official Amazon Quick start: Publishing to `Amazon ECR Public` using 
 - Create a cluster IAM role and attach the required `Amazon EKS IAM managed policy` to it.
 - Open a terminal or command prompt and navigate to the **EKS directory** and run the following command:.
 
-        aws iam create-role --role-name <Policy-Role-Name> \
-        aws iam create-role --role-name <Policy-Role-Name> \
+        aws iam create-role \
+            --role-name <Policy-Role-Name> \
             --assume-role-policy-document file://"eks-cluster-role-trust-policy.json"
 
 - Attach Policy Role.
