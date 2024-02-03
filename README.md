@@ -470,6 +470,7 @@ aws ec2 terminate-instances \
 
 - Remember to always follow the best practices and guidelines provided by your cloud provider to ensure a smooth and efficient cleanup process.
 - Regularly reviewing and optimizing your resource utilization can not only save costs but also improve the overall performance and efficiency of your cloud infrastructure.<br>
+
 Follow the Official Documunts `Deleting an Amazon EKS cluster` [here](https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html)
 
   Keep in mind that this example is minimal and focuses on the basic steps. <br>
